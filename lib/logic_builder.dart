@@ -2,7 +2,7 @@ import 'web_view_container.dart';
 import 'package:flutter/material.dart';
 
 class StartPageStateless extends StatelessWidget {
-  String appUrl = 'https://backendles.com'.toLowerCase();
+  String appUrl = 'URL_YOUR_UI_BUILDER_APP'.toLowerCase();
 
   @override
   Widget build(BuildContext context) {
