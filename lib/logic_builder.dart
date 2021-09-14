@@ -2,13 +2,15 @@ import 'web_view_container.dart';
 import 'package:flutter/material.dart';
 
 class StartPageStateless extends StatelessWidget {
-  const StartPageStateless({Key? key}) : super(key: key);
+  String appUrl = 'https://backendles.com'.toLowerCase();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: StartPageStateful(),
+      home: appUrl.startsWith('http') && appUrl.contains('backendless')
+          ? WebViewContainer(appUrl)
+          : StartPageStateful(),
     );
   }
 }
@@ -21,16 +23,9 @@ class StartPageStateful extends StatefulWidget {
 }
 
 class _StartPageStatefulState extends State<StartPageStateful> {
-  String appUrl = "YOUR_OWN_URL";
-
   @override
   void initState() {
     super.initState();
-    appUrl = appUrl.toLowerCase();
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      if (appUrl.startsWith("http") && appUrl.contains('backendless'))
-        _handleUrlButtonPress(context, appUrl);
-    });
   }
 
   @override
@@ -71,10 +66,5 @@ class _StartPageStatefulState extends State<StartPageStateful> {
         ),
       ),
     );
-  }
-
-  void _handleUrlButtonPress(BuildContext context, String url) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => WebViewContainer(url)));
   }
 }
