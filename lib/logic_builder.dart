@@ -1,7 +1,5 @@
-import 'dart:io' as io show File;
 import 'web_view_container.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
 class StartPageStateless extends StatelessWidget {
   const StartPageStateless({Key? key}) : super(key: key);
@@ -23,64 +21,19 @@ class StartPageStateful extends StatefulWidget {
 }
 
 class _StartPageStatefulState extends State<StartPageStateful> {
-  String? appUrl;
+  String appUrl = "https://google.com";
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      String data = await readData();
-      if (data.isNotEmpty)
-        _handleUrlButtonPress(context, await readUrl(), data);
+      if (appUrl.startsWith("http")) _handleUrlButtonPress(context, appUrl);
     });
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<io.File> _localFile() async {
-    final path = await _localPath;
-    print(path);
-    return io.File('$path/savedApp.txt');
-  }
-
-  Future<String> readData() async {
-    try {
-      final file = await _localFile();
-
-      if (!file.existsSync()) await file.create();
-
-      String content = await file.readAsString();
-
-      if (content.isNotEmpty)
-        return content.substring(0, content.indexOf('~:'));
-
-      print('Note: Empty content in file');
-      return content;
-    } catch (e) {
-      throw new Exception(e);
-    }
-  }
-
-  Future<String> readUrl() async {
-    final file = await _localFile();
-
-    String content = await file.readAsString();
-    return content.substring(content.indexOf('~:') + 2, content.length);
-  }
-
-  Future writeData() async {
-    final file = await _localFile();
-    //Write the file
-    return file.writeAsString('userApp~:$appUrl');
   }
 
   @override
@@ -102,23 +55,15 @@ class _StartPageStatefulState extends State<StartPageStateful> {
           child: Column(
             children: [
               SizedBox(height: 50.0),
-              Text('Set up the URL of your application in UI Builder'),
-              Card(
-                  margin:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                  shape: StadiumBorder(
-                    side: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 1.5,
-                    ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Text(
+                  'Please enter the URL of your UI Builder application in \'appUrl\' variable',
+                  style: TextStyle(
+                    fontSize: 24.0,
                   ),
-                  child: textFormFieldBuilder()),
-              ElevatedButton(
-                onPressed: () async => await writeData().then((value) async =>
-                    _handleUrlButtonPress(
-                        context, await readUrl(), await readData())),
-                child: Text('Set'),
-              )
+                ),
+              ),
             ],
           ),
         ),
@@ -126,9 +71,9 @@ class _StartPageStatefulState extends State<StartPageStateful> {
     );
   }
 
-  void _handleUrlButtonPress(BuildContext context, String url, String name) {
+  void _handleUrlButtonPress(BuildContext context, String url) {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => WebViewContainer(url, name)));
+        MaterialPageRoute(builder: (context) => WebViewContainer(url)));
   }
 
   TextFormField textFormFieldBuilder() {
