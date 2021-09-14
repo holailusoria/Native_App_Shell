@@ -21,13 +21,15 @@ class StartPageStateful extends StatefulWidget {
 }
 
 class _StartPageStatefulState extends State<StartPageStateful> {
-  String appUrl = "https://google.com";
+  String appUrl = "YOUR_OWN_URL";
 
   @override
   void initState() {
     super.initState();
+    appUrl = appUrl.toLowerCase();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      if (appUrl.startsWith("http")) _handleUrlButtonPress(context, appUrl);
+      if (appUrl.startsWith("http") && appUrl.contains('backendless'))
+        _handleUrlButtonPress(context, appUrl);
     });
   }
 
@@ -74,30 +76,5 @@ class _StartPageStatefulState extends State<StartPageStateful> {
   void _handleUrlButtonPress(BuildContext context, String url) {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => WebViewContainer(url)));
-  }
-
-  TextFormField textFormFieldBuilder() {
-    return TextFormField(
-      onChanged: (text) => {
-        appUrl = text,
-        print(appUrl),
-      },
-      style: TextStyle(
-        fontSize: 20.0,
-      ),
-      decoration: InputDecoration(
-        border: InputBorder.none,
-        prefixIcon: Icon(
-          Icons.link,
-          color: Colors.grey.shade700,
-          size: 24.0,
-        ),
-        hintText: 'Your own URL',
-        hintStyle: TextStyle(
-          color: Colors.grey.shade500,
-          fontSize: 20.0,
-        ),
-      ),
-    );
   }
 }
