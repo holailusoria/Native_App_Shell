@@ -2,13 +2,13 @@ import 'web_view_container.dart';
 import 'package:flutter/material.dart';
 
 class StartPageStateless extends StatelessWidget {
-  String appUrl = 'URL_YOUR_UI_BUILDER_APP'.toLowerCase();
+  String appUrl = 'URL_YOUR_APP_IN_UI_BUILDER'.toLowerCase();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: appUrl.startsWith('http') && appUrl.contains('backendless')
+      home: appUrl.startsWith('https') && appUrl.contains('backendless')
           ? WebViewContainer(appUrl)
           : StartPageStateful(),
     );
