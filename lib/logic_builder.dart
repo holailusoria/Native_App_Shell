@@ -2,6 +2,7 @@ import 'web_view_container.dart';
 import 'package:flutter/material.dart';
 
 class StartPageStateless extends StatelessWidget {
+  //TODO Set yor url!
   String appUrl = 'URL_YOUR_APP_IN_UI_BUILDER'.toLowerCase();
 
   @override
