@@ -83,6 +83,81 @@ class _WebViewContainerState extends State<WebViewContainer> {
           onConsoleMessage: (controller, consoleMessage) {
             print(consoleMessage);
           },
+          onLoadError: (controller, url, code, message) {
+            print('code: $code\n'
+                'url: $url\n'
+                'message: $message');
+            showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                titlePadding: EdgeInsets.all(8.0),
+                insetPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                contentPadding: EdgeInsets.all(8.0),
+                title: Text('Error'),
+                content: Container(
+                  //width: MediaQuery.of(context).size.width * 0.8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        children: [
+                          Text(
+                            'code:',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            code.toString(),
+                          ),
+                        ],
+                      ),
+                      /*
+                      Wrap(
+                        children: [
+                          Text(
+                            'url:',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            url.toString(),
+                            maxLines: 3,
+                            softWrap: true,
+                          ),
+                        ],
+                      ),
+                      */
+                      Wrap(
+                        children: [
+                          Text(
+                            'message:',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            message,
+                            maxLines: 10,
+                            softWrap: true,
+                          ),
+                          Text(
+                            '\nTry restarting the app',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    child: Text('Ok'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  )
+                ],
+                scrollable: true,
+              ),
+            );
+          },
           initialOptions: InAppWebViewGroupOptions(
             crossPlatform: InAppWebViewOptions(
               mediaPlaybackRequiresUserGesture: false,
