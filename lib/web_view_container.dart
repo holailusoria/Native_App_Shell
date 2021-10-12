@@ -1,38 +1,45 @@
 import 'package:flutter/material.dart';
-//import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'logic_builder.dart';
 
 class WebViewContainer extends StatefulWidget {
-  final url;
+  final syncPath;
 
-  WebViewContainer(this.url);
+  WebViewContainer(this.syncPath);
 
   @override
-  _WebViewContainerState createState() => _WebViewContainerState(url);
+  _WebViewContainerState createState() => _WebViewContainerState(syncPath);
 }
 
 class _WebViewContainerState extends State<WebViewContainer> {
-  var _url;
   final _key = UniqueKey();
+  String? syncPath;
 
   InAppWebViewController? webViewController;
-  InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
+
+  InAppWebViewGroupOptions? options;
+
+  _WebViewContainerState(this.syncPath);
+
+  @override
+  void initState() {
+    options = InAppWebViewGroupOptions(
       crossPlatform: InAppWebViewOptions(
-        useShouldOverrideUrlLoading: true,
+        allowUniversalAccessFromFileURLs: true,
+        //useShouldOverrideUrlLoading: true,
         mediaPlaybackRequiresUserGesture: false,
+        javaScriptCanOpenWindowsAutomatically: true,
+        useShouldInterceptAjaxRequest: true,
       ),
       android: AndroidInAppWebViewOptions(
         useHybridComposition: true,
       ),
       ios: IOSInAppWebViewOptions(
         allowsInlineMediaPlayback: true,
-      ));
-
-  _WebViewContainerState(this._url);
-
-  @override
-  void initState() {
+        allowsPictureInPictureMediaPlayback: true,
+        isPagingEnabled: true,
+      ),
+    );
     super.initState();
   }
 
@@ -47,42 +54,31 @@ class _WebViewContainerState extends State<WebViewContainer> {
       body: SafeArea(
         child: InAppWebView(
           key: _key,
-          initialUrlRequest: URLRequest(
-            url: Uri.parse(_url),
-          ),
+          initialOptions: options,
+          initialFile: syncPath,
+          onWebViewCreated: (InAppWebViewController controller) async {
+            webViewController = controller;
+          },
           androidOnPermissionRequest: (InAppWebViewController controller,
               String origin, List<String> resources) async {
             return PermissionRequestResponse(
                 resources: resources,
                 action: PermissionRequestResponseAction.GRANT);
           },
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            var uri = navigationAction.request.url!;
-
-            if (![
-              "http",
-              "https",
-              "file",
-              "chrome",
-              "data",
-              "javascript",
-              "about"
-            ].contains(uri.scheme)) {
-              if (await canLaunch(_url)) {
-                // Launch the App
-                await launch(
-                  _url,
-                );
-                // and cancel the request
-                return NavigationActionPolicy.CANCEL;
-              }
-            }
-
-            return NavigationActionPolicy.ALLOW;
+          onAjaxProgress: (controller, ajax) async {
+            print('ajax progress...');
+            //print('ajax progress: $ajax');
+            return AjaxRequestAction.PROCEED;
+          },
+          onAjaxReadyStateChange: (controller, ajax) async {
+            print('ajax ready state changed: $ajax');
+            print('AJAX RESPONSE TEXT: ' + ajax.responseText.toString());
+            return AjaxRequestAction.PROCEED;
           },
           onConsoleMessage: (controller, consoleMessage) {
             print(consoleMessage);
           },
+          onLoadStart: (InAppWebViewController controller, url) {},
           onLoadError: (controller, url, code, message) {
             print('code: $code\n'
                 'url: $url\n'
@@ -110,21 +106,6 @@ class _WebViewContainerState extends State<WebViewContainer> {
                           ),
                         ],
                       ),
-                      /*
-                      Wrap(
-                        children: [
-                          Text(
-                            'url:',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            url.toString(),
-                            maxLines: 3,
-                            softWrap: true,
-                          ),
-                        ],
-                      ),
-                      */
                       Wrap(
                         children: [
                           Text(
@@ -158,17 +139,30 @@ class _WebViewContainerState extends State<WebViewContainer> {
               ),
             );
           },
-          initialOptions: InAppWebViewGroupOptions(
-            crossPlatform: InAppWebViewOptions(
-              mediaPlaybackRequiresUserGesture: false,
-            ),
-            android: AndroidInAppWebViewOptions(
-              useHybridComposition: true,
-            ),
-            ios: IOSInAppWebViewOptions(
-              allowsInlineMediaPlayback: true,
-            ),
-          ),
+          onLoadHttpError: (controller, url, code, message) {
+            print('code: $code\n'
+                'url: $url\n'
+                'message: $message');
+          },
+          onLoadStop: (controller, url) async {
+            print('load stopped: $url');
+            print('progress: ' + (await controller.getProgress()).toString());
+          },
+          onLoadResource: (controller, loadedResources) {
+            print('type: $loadedResources');
+          },
+          onProgressChanged: (controller, progress) {
+            print('progress: $progress %');
+          },
+          iosOnNavigationResponse: (controller, response) async {
+            print(response.response);
+          },
+          onDownloadStart: (controller, url) {
+            print('Downloading started with url: $url');
+          },
+          onPrint: (controller, url) {
+            print('onPrint event: $url');
+          },
         ),
       ),
     );
