@@ -21,5 +21,5 @@ flutter pub get
 After that, your application will be ready to use.
 
 If you have a question, you can ask it here:
-https://support.backendless.com
-http://slack.backendless.com
+- [Our support forum](https://support.backendless.com)
+- [Our slack](http://slack.backendless.com)
