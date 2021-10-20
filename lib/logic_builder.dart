@@ -1,23 +1,20 @@
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/material.dart';
 import 'package:native_app_shell/web_view_container.dart';
-import 'dart:io' as io;
 
 class StartPageStateless extends StatelessWidget {
   //TODO Set path to your 'index.html' file!
-  var syncPath = '/Users/default/StudioProjects/native_app_shell/lib/main.dart';
+  var syncPath = 'assets/ui_builder_app/index.html';
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: isExists() //&& appUrl.contains('backendless')
-            ? WebViewContainer(syncPath)
-            : StartPageStateful());
+        home: isExists() ? WebViewContainer(syncPath) : StartPageStateful());
   }
 
   bool isExists() {
-    return io.File(syncPath).existsSync();
+    return syncPath.contains('/index.html');
   }
 }
 
@@ -61,7 +58,7 @@ class _StartPageStatefulState extends State<StartPageStateful> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32.0),
                 child: Text(
-                  'Please enter the path to the \'index.html\' file in \'syncPath\' variable',
+                  'Please enter the path to the \'index.html\' file in \'syncPath\' variable(in logic_builder.dart)',
                   style: TextStyle(
                     fontSize: 24.0,
                   ),

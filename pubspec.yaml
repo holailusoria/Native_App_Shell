@@ -25,3 +25,4 @@ flutter:
   assets:
     - images/
     - assets/ui_builder_app/
+    - assets/ui_builder_app/library/sdk/sdk.js
