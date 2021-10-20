@@ -4,13 +4,18 @@ Native App Shell for UI Builder applications
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This application is a native shell for your application built with the UI Builder in the Backendless Console.
 
-A few resources to get you started if this is your first Flutter project:
+- [How to prepare your IDE](https://flutter.dev/docs/get-started/install/macos)
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Once your IDE is ready to use, you need to click the 'Publish the container' button
+in the 'Publish' section of the UI Builder.
+Then, you need to go to the folder with the application, and create an archive by clicking the 'Zip Directory' button.
+Download this archive, and place the files from there in the 'assets/ui_builder_app' folder.
+We strongly discourage creating additional folders inside 'ui_builder_app'.
+After completing these steps, use the following commands:
+```dart
+flutter clean
+flutter pub get
+```
+After that, your application will be ready to use.

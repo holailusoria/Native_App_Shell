@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'logic_builder.dart';
 
 class WebViewContainer extends StatefulWidget {
   final syncPath;
@@ -67,7 +66,6 @@ class _WebViewContainerState extends State<WebViewContainer> {
           },
           onAjaxProgress: (controller, ajax) async {
             print('ajax progress...');
-            //print('ajax progress: $ajax');
             return AjaxRequestAction.PROCEED;
           },
           onAjaxReadyStateChange: (controller, ajax) async {
