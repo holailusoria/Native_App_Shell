@@ -23,3 +23,7 @@ If you want to use some custom fonts, you need to declare that in your pubspec.y
 You can find out how to do this [here](https://flutter.dev/docs/cookbook/design/fonts).
 
 After that, your application will be ready to use.
+
+If you have a question, you can ask it here:
+- [Our support forum](https://support.backendless.com)
+- [Our slack](http://slack.backendless.com)
