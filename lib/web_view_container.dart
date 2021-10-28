@@ -37,6 +37,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
         allowsInlineMediaPlayback: true,
         allowsPictureInPictureMediaPlayback: true,
         isPagingEnabled: true,
+        disallowOverScroll: true,
       ),
     );
     super.initState();
