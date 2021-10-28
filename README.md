@@ -18,4 +18,8 @@ After completing these steps, use the following commands:
 flutter clean
 flutter pub get
 ```
+
+If you want to use some custom fonts, you need to declare that in your pubspec.yaml file.
+You can find out how to do this [here](https://flutter.dev/docs/cookbook/design/fonts).
+
 After that, your application will be ready to use.
