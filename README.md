@@ -11,15 +11,15 @@ This application is a native shell for your application built with the UI Builde
 Once your IDE is ready to use, you need to click the 'Publish the container' button
 in the 'Publish' section of the UI Builder.
 Then, you need to go to the folder with the application, and create an archive by clicking the 'Zip Directory' button.
-Download this archive, and place the files from there in the 'assets/ui_builder_app' folder.
-We strongly discourage creating additional folders inside 'ui_builder_app'.
+Download this archive, and place the files from there in the ```assets/ui_builder_app``` folder.
+We strongly discourage creating additional folders inside ```ui_builder_app```.
 After completing these steps, use the following commands:
 ```dart
 flutter clean
 flutter pub get
 ```
 
-If you want to use some custom fonts, you need to declare that in your pubspec.yaml file.
+If you want to use some custom fonts, you need to declare that in your ```pubspec.yaml``` file.
 You can find out how to do this [here](https://flutter.dev/docs/cookbook/design/fonts).
 
 After that, your application will be ready to use.
