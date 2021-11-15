@@ -15,6 +15,9 @@ dependencies:
   permission_handler: ^8.1.6
   flutter_inappwebview: ^5.3.2
   url_launcher: ^6.0.10
+  backendless_sdk: ^7.1.7
+  overlay_support: ^1.2.1
+  audioplayers: ^0.20.1
 
 dev_dependencies:
   flutter_test:
@@ -24,5 +27,12 @@ flutter:
   uses-material-design: true
   assets:
     - images/
+    - assets/notification_sounds/push_sound.wav
     - assets/ui_builder_app/
     - assets/ui_builder_app/library/sdk/sdk.js
+
+  fonts:
+    - family: CustomAssets
+      fonts:
+        - asset: assets/ui_builder_app/styles/fontello.woff
+        - asset: assets/ui_builder_app/styles/fontello.woff2
