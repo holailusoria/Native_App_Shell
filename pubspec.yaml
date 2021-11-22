@@ -18,6 +18,7 @@ dependencies:
   backendless_sdk: ^7.1.7
   overlay_support: ^1.2.1
   audioplayers: ^0.20.1
+  uuid: ^3.0.5
 
 dev_dependencies:
   flutter_test:
@@ -34,5 +35,3 @@ flutter:
   fonts:
     - family: CustomAssets
       fonts:
-        - asset: assets/ui_builder_app/styles/fontello.woff
-        - asset: assets/ui_builder_app/styles/fontello.woff2

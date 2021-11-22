@@ -1,11 +1,12 @@
-import 'dart:io';
-import 'package:audioplayers/audioplayers.dart';
+import 'dart:io' as io;
+import '../bridge/bridge.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:audioplayers/audioplayers.dart';
+import '../types/push_notification_message.dart';
 import 'package:backendless_sdk/backendless_sdk.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'message_notification.dart';
-import 'push_notification_message.dart';
+import '../push_notifications/message_notification.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class WebViewContainer extends StatefulWidget {
   final syncPath;
@@ -18,11 +19,13 @@ class WebViewContainer extends StatefulWidget {
 
 class _WebViewContainerState extends State<WebViewContainer> {
   final _key = UniqueKey();
+
   String? syncPath;
+  bool registerForPushNotificationsOnRun = true;
 
   InAppWebViewController? webViewController;
-
   InAppWebViewGroupOptions? options;
+  Bridge? manager;
 
   _WebViewContainerState(this.syncPath);
 
@@ -35,6 +38,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
         mediaPlaybackRequiresUserGesture: false,
         javaScriptCanOpenWindowsAutomatically: true,
         useShouldInterceptAjaxRequest: true,
+        javaScriptEnabled: true,
       ),
       android: AndroidInAppWebViewOptions(
         useHybridComposition: true,
@@ -46,7 +50,11 @@ class _WebViewContainerState extends State<WebViewContainer> {
         disallowOverScroll: true,
       ),
     );
-    registerForPushNotifications();
+
+    if (registerForPushNotificationsOnRun) {
+      registerForPushNotifications();
+    }
+
     super.initState();
   }
 
@@ -64,9 +72,21 @@ class _WebViewContainerState extends State<WebViewContainer> {
           child: InAppWebView(
             key: _key,
             initialOptions: options,
-            initialFile: syncPath,
             onWebViewCreated: (InAppWebViewController controller) async {
               webViewController = controller;
+              manager = Bridge(controller: webViewController!);
+
+              if (!registerForPushNotificationsOnRun) {
+                if (!io.Platform.isAndroid ||
+                    await AndroidWebViewFeature.isFeatureSupported(
+                        AndroidWebViewFeature.WEB_MESSAGE_LISTENER)) {
+                  await manager!.addWebMessageListener(
+                      jsObjectName: 'pushObject',
+                      allowedOriginRules: Set.from(['*']),
+                      funcToRun: registerForPushNotifications);
+                }
+              }
+              await controller.loadFile(assetFilePath: syncPath!);
             },
             androidOnPermissionRequest: (InAppWebViewController controller,
                 String origin, List<String> resources) async {
@@ -99,7 +119,6 @@ class _WebViewContainerState extends State<WebViewContainer> {
                   contentPadding: EdgeInsets.all(8.0),
                   title: Text('Error'),
                   content: Container(
-                    //width: MediaQuery.of(context).size.width * 0.8,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -188,13 +207,15 @@ class _WebViewContainerState extends State<WebViewContainer> {
     }
   }
 
-  Future<void> registerForPushNotifications() async {
+  Future<dynamic> registerForPushNotifications() async {
     List<String> channels = [];
     channels.add("default");
 
-    Backendless.messaging
-        .registerDevice(channels, null, onMessage)
-        .then((v) => print('Device registered!'));
+    try {
+      return Backendless.messaging.registerDevice(channels, null, onMessage);
+    } catch (ex) {
+      return ex;
+    }
   }
 
   void onMessage(Map<String, dynamic> message) async {
@@ -202,11 +223,11 @@ class _WebViewContainerState extends State<WebViewContainer> {
     pushSound.play('notification_sounds/push_sound.wav');
     PushNotificationMessage notification = PushNotificationMessage();
 
-    if (Platform.isIOS) {
+    if (io.Platform.isIOS) {
       Map pushData = message['aps']['alert'];
       notification.title = pushData['title'];
       notification.body = pushData['body'];
-    } else if (Platform.isAndroid) {
+    } else if (io.Platform.isAndroid) {
       notification.title = message['android-content-title'];
       notification.body = message['message'];
     }

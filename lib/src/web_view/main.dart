@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'initializer.dart';
+import '../utils/initializer.dart';
 import 'logic_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
