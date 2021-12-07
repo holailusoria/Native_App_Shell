@@ -1,4 +1,7 @@
 import 'dart:io' as io;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../utils/initializer.dart';
 import '../bridge/bridge.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -26,22 +29,27 @@ class _WebViewContainerState extends State<WebViewContainer> {
   InAppWebViewController? webViewController;
   InAppWebViewGroupOptions? options;
   Bridge? manager;
-
   _WebViewContainerState(this.syncPath);
 
   @override
   void initState() {
+    super.initState();
     options = InAppWebViewGroupOptions(
       crossPlatform: InAppWebViewOptions(
         allowUniversalAccessFromFileURLs: true,
-        //useShouldOverrideUrlLoading: true,
+        allowFileAccessFromFileURLs: true,
+        useShouldOverrideUrlLoading: true,
         mediaPlaybackRequiresUserGesture: false,
         javaScriptCanOpenWindowsAutomatically: true,
-        useShouldInterceptAjaxRequest: true,
         javaScriptEnabled: true,
+        preferredContentMode: UserPreferredContentMode.MOBILE,
+        useOnLoadResource: true,
       ),
       android: AndroidInAppWebViewOptions(
+        mixedContentMode: AndroidMixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
         useHybridComposition: true,
+        allowFileAccess: true,
+        allowContentAccess: true,
       ),
       ios: IOSInAppWebViewOptions(
         allowsInlineMediaPlayback: true,
@@ -54,8 +62,6 @@ class _WebViewContainerState extends State<WebViewContainer> {
     if (registerForPushNotificationsOnRun) {
       registerForPushNotifications();
     }
-
-    super.initState();
   }
 
   @override
@@ -94,14 +100,29 @@ class _WebViewContainerState extends State<WebViewContainer> {
                   resources: resources,
                   action: PermissionRequestResponseAction.GRANT);
             },
-            onAjaxProgress: (controller, ajax) async {
-              print('ajax progress with url: ${ajax.url}');
-              return AjaxRequestAction.PROCEED;
-            },
-            onAjaxReadyStateChange: (controller, ajax) async {
-              print('ajax ready state changed: ${ajax.readyState}');
-              print('AJAX RESPONSE TEXT: ' + ajax.responseText.toString());
-              return AjaxRequestAction.PROCEED;
+            shouldOverrideUrlLoading: (controller, navigationAction) async {
+              var uri = navigationAction.request.url!;
+
+              if (![
+                "http",
+                "https",
+                "file",
+                "chrome",
+                "data",
+                "javascript",
+                "about"
+              ].contains(uri.scheme)) {
+                if (await canLaunch(uri.toString())) {
+                  // Launch the App
+                  await launch(
+                    uri.toString(),
+                  );
+                  // and cancel the request
+                  return NavigationActionPolicy.CANCEL;
+                }
+              }
+
+              return NavigationActionPolicy.ALLOW;
             },
             onConsoleMessage: (controller, consoleMessage) {
               print(consoleMessage);

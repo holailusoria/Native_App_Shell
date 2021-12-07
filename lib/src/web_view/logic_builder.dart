@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:native_app_shell/src/web_view/web_view_container.dart';
+import '../web_view/web_view_container.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class StartPageStateless extends StatelessWidget {

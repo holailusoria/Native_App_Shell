@@ -1,4 +1,4 @@
-import '../utils/decoder.dart';
+import '../utils/coder.dart';
 import '../types/system_events.dart';
 
 class BridgeValidator {
@@ -6,7 +6,7 @@ class BridgeValidator {
     var data = SystemEvents.values;
 
     for (SystemEvents ev in data) {
-      if (eventMessage == Decoder.decodeEnum(ev)) return ev;
+      if (eventMessage == Coder.decodeEnum(ev)) return ev;
     }
 
     return null;
