@@ -18,7 +18,6 @@ dependencies:
   backendless_sdk: ^7.1.7
   overlay_support: ^1.2.1
   audioplayers: ^0.20.1
-  uuid: ^3.0.5
 
 dev_dependencies:
   flutter_test:
@@ -35,3 +34,23 @@ flutter:
   fonts:
     - family: CustomAssets
       fonts:
+        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Bold.ttf
+        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Bold.woff
+        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Bold.woff2
+        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Regular.ttf
+        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Regular.woff
+        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Regular.woff2
+        - asset: assets/ui_builder_app/styles/static/images/icons/Arrived.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/AtLoading.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/Back.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/Filter.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/InTransit.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/menuContainers.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/menuDashboard.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/menuHome.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/menuProfile.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/menuShippments.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/PasswordEye.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/Released.svg
+        - asset: assets/ui_builder_app/styles/static/images/icons/Search.svg
+        - asset: assets/ui_builder_app/styles/static/images/nouser.png
