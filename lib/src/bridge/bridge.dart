@@ -12,38 +12,29 @@ class Bridge {
 
   Bridge({required this.controller});
 
-  Future addWebMessageListener(
-      {required String jsObjectName,
-      Set<String>? allowedOriginRules,
-      FunctionHandler? funcToRun}) async {
+  Future addWebMessageListener() async {
     this.controller.addWebMessageListener(WebMessageListener(
-        jsObjectName: jsObjectName,
-        allowedOriginRules: allowedOriginRules,
+        jsObjectName: 'UI_BUILDER_WEB_MESSAGE_LISTENER_OBJECT',
+        allowedOriginRules: Set.from(['*']),
         onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) async {
-          String result = '';
+          String? result;
           try {
             Map data = jsonDecode(message!);
 
-            if (funcToRun != null) {
-              var ev = BridgeValidator.hasSystemEvent(data['message']);
-              switch (ev) {
-                case SystemEvents.REGISTER_FOR_PUSH:
-                  if (_isRegistered) return;
-                  result =
-                      await BridgeManager.processFunc(() => funcToRun, data);
-                  _isRegistered = true;
-                  break;
-                default:
-                  result =
-                      await BridgeManager.processFunc(() => funcToRun, data);
-              }
-            } else
-              result = BridgeManager.buildResponse(
-                  id: data['id']!, response: 'Processed');
+            var systemEvent = BridgeValidator.hasSystemEvent(data['event']);
+            switch (systemEvent) {
+              case SystemEvents.REQUEST:
+                result = await BridgeManager.executeRequest(data);
+                break;
+              case SystemEvents.RESPONSE:
+                break;
+              default:
+                break;
+            }
+            await replyProxy.postMessage(result!);
           } catch (ex) {
-            throw new Exception(ex);
+            throw Exception(ex);
           }
-          replyProxy.postMessage(result);
         }));
   }
 

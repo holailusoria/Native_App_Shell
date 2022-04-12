@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io' as io;
+import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/initializer.dart';
@@ -10,11 +12,51 @@ import 'package:backendless_sdk/backendless_sdk.dart';
 import 'package:overlay_support/overlay_support.dart';
 import '../push_notifications/message_notification.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:geolocator/geolocator.dart';
 
 class WebViewContainer extends StatefulWidget {
   final syncPath;
 
   WebViewContainer(this.syncPath);
+
+  static Future<dynamic> registerForPushNotifications(
+      {List<String>? channels}) async {
+    List<String> channelsList = [];
+
+    if (channels != null)
+      channelsList.addAll(channels);
+    else
+      channelsList.add('default');
+
+    try {
+      return await Backendless.messaging
+          .registerDevice(channelsList, null, onMessage);
+    } catch (ex) {
+      return ex;
+    }
+  }
+
+  static void onMessage(Map<String, dynamic> message) async {
+    AudioCache pushSound = AudioCache();
+    pushSound.play('notification_sounds/push_sound.wav');
+    PushNotificationMessage notification = PushNotificationMessage();
+
+    if (io.Platform.isIOS) {
+      Map pushData = message['aps']['alert'];
+      notification.title = pushData['title'];
+      notification.body = pushData['body'];
+    } else if (io.Platform.isAndroid) {
+      notification.title = message['android-content-title'];
+      notification.body = message['message'];
+    }
+
+    showOverlayNotification((context) {
+      return MessageNotification(
+        title: notification.title,
+        body: notification.body,
+      );
+    });
+  }
 
   @override
   _WebViewContainerState createState() => _WebViewContainerState(syncPath);
@@ -24,7 +66,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
   final _key = UniqueKey();
 
   String? syncPath;
-  bool registerForPushNotificationsOnRun = true;
+  bool registerForPushNotificationsOnRun = false;
 
   InAppWebViewController? webViewController;
   InAppWebViewGroupOptions? options;
@@ -44,23 +86,30 @@ class _WebViewContainerState extends State<WebViewContainer> {
         javaScriptEnabled: true,
         preferredContentMode: UserPreferredContentMode.MOBILE,
         useOnLoadResource: true,
+        cacheEnabled: true,
+        userAgent:
+            'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36',
       ),
       android: AndroidInAppWebViewOptions(
         mixedContentMode: AndroidMixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
         useHybridComposition: true,
         allowFileAccess: true,
         allowContentAccess: true,
+        supportMultipleWindows: true,
+        geolocationEnabled: true,
       ),
       ios: IOSInAppWebViewOptions(
         allowsInlineMediaPlayback: true,
-        allowsPictureInPictureMediaPlayback: true,
         isPagingEnabled: true,
         disallowOverScroll: true,
       ),
     );
 
+    // *** Uncomment if geolocation is used ***
+    geoInit();
+
     if (registerForPushNotificationsOnRun) {
-      registerForPushNotifications();
+      WebViewContainer.registerForPushNotifications();
     }
   }
 
@@ -69,29 +118,32 @@ class _WebViewContainerState extends State<WebViewContainer> {
     super.dispose();
   }
 
+  void geoInit() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    await Geolocator.requestPermission();
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: WillPopScope(
           onWillPop: () => _exitApp(context),
           child: InAppWebView(
             key: _key,
             initialOptions: options,
+            androidOnGeolocationPermissionsShowPrompt:
+                (InAppWebViewController controller, String origin) async {
+              return GeolocationPermissionShowPromptResponse(
+                  origin: origin, allow: true, retain: true);
+            },
             onWebViewCreated: (InAppWebViewController controller) async {
               webViewController = controller;
               manager = Bridge(controller: webViewController!);
+              await setBridge();
 
-              if (!registerForPushNotificationsOnRun) {
-                if (!io.Platform.isAndroid ||
-                    await AndroidWebViewFeature.isFeatureSupported(
-                        AndroidWebViewFeature.WEB_MESSAGE_LISTENER)) {
-                  await manager!.addWebMessageListener(
-                      jsObjectName: 'pushObject',
-                      allowedOriginRules: Set.from(['*']),
-                      funcToRun: registerForPushNotifications);
-                }
-              }
               await controller.loadFile(assetFilePath: syncPath!);
             },
             androidOnPermissionRequest: (InAppWebViewController controller,
@@ -128,7 +180,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
               print(consoleMessage);
             },
             onLoadStart: (InAppWebViewController controller, url) {},
-            onLoadError: (controller, url, code, message) {
+            onLoadError: (controller, url, code, message) async {
               print('code: $code\n'
                   'url: $url\n'
                   'message: $message');
@@ -196,8 +248,9 @@ class _WebViewContainerState extends State<WebViewContainer> {
               print('load stopped: $url');
               print('progress: ' + (await controller.getProgress()).toString());
             },
-            onLoadResource: (controller, loadedResources) {
-              print('type: $loadedResources');
+            onLoadResource: (controller, resource) async {
+              print('ON LOAD RESOURCE:');
+              print(resource.url);
             },
             onProgressChanged: (controller, progress) {
               print('progress: $progress %');
@@ -228,36 +281,10 @@ class _WebViewContainerState extends State<WebViewContainer> {
     }
   }
 
-  Future<dynamic> registerForPushNotifications() async {
-    List<String> channels = [];
-    channels.add("default");
-
-    try {
-      return Backendless.messaging.registerDevice(channels, null, onMessage);
-    } catch (ex) {
-      return ex;
-    }
-  }
-
-  void onMessage(Map<String, dynamic> message) async {
-    AudioCache pushSound = AudioCache();
-    pushSound.play('notification_sounds/push_sound.wav');
-    PushNotificationMessage notification = PushNotificationMessage();
-
-    if (io.Platform.isIOS) {
-      Map pushData = message['aps']['alert'];
-      notification.title = pushData['title'];
-      notification.body = pushData['body'];
-    } else if (io.Platform.isAndroid) {
-      notification.title = message['android-content-title'];
-      notification.body = message['message'];
-    }
-
-    showOverlayNotification((context) {
-      return MessageNotification(
-        title: notification.title,
-        body: notification.body,
-      );
-    });
+  Future setBridge() async {
+    if (!io.Platform.isAndroid ||
+        await AndroidWebViewFeature.isFeatureSupported(
+            AndroidWebViewFeature.WEB_MESSAGE_LISTENER))
+      await manager!.addWebMessageListener();
   }
 }

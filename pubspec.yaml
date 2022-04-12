@@ -13,11 +13,13 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   permission_handler: ^8.1.6
-  flutter_inappwebview: ^5.3.2
   url_launcher: ^6.0.10
-  backendless_sdk: ^7.1.7
   overlay_support: ^1.2.1
   audioplayers: ^0.20.1
+  backendless_sdk: ^7.1.8
+  flutter_inappwebview: ^5.3.2
+  http: ^0.13.4
+  geolocator: ^8.0.5
 
 dev_dependencies:
   flutter_test:
@@ -34,23 +36,3 @@ flutter:
   fonts:
     - family: CustomAssets
       fonts:
-        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Bold.ttf
-        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Bold.woff
-        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Bold.woff2
-        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Regular.ttf
-        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Regular.woff
-        - asset: assets/ui_builder_app/styles/static/fonts/Gilroy-Regular.woff2
-        - asset: assets/ui_builder_app/styles/static/images/icons/Arrived.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/AtLoading.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/Back.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/Filter.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/InTransit.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/menuContainers.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/menuDashboard.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/menuHome.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/menuProfile.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/menuShippments.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/PasswordEye.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/Released.svg
-        - asset: assets/ui_builder_app/styles/static/images/icons/Search.svg
-        - asset: assets/ui_builder_app/styles/static/images/nouser.png

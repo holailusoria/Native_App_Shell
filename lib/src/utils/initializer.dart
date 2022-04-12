@@ -9,6 +9,9 @@ Future<void> initApp({required String pathToSettings}) async {
   final initData = await Coder.readJson(path: pathToSettings);
 
   if (initData['apiDomain'] != null) {
+    if (!(initData['apiDomain'] as String).contains('http'))
+      initData['apiDomain'] = 'https://' + initData['apiDomain'];
+
     await Backendless.initApp(
       customDomain: initData['apiDomain'],
     );
